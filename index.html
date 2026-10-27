@@ -1,0 +1,795 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TopGoal 3 - كلمات الوحدة الأولى (Living Things)</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Tajawal -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Tajawal', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            blue: '#3b82f6',
+                            emerald: '#10b981',
+                            purple: '#8b5cf6',
+                            amber: '#f59e0b',
+                            rose: '#f43f5e'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #f1f5f9;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        /* Perspective and 3D Flip Effects */
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+
+        .flip-card-inner {
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+        }
+
+        .flip-card.flipped .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .flip-card-front, .flip-card-back {
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+
+        .flip-card-back {
+            transform: rotateY(180deg);
+        }
+
+        /* Glassmorphism & Subtle Glow */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(226, 232, 240, 0.9);
+        }
+
+        /* Animations */
+        @keyframes pulse-gentle {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+        }
+
+        .animate-pulse-gentle {
+            animation: pulse-gentle 2s infinite ease-in-out;
+        }
+
+        /* Confetti Canvas */
+        #confetti-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 9999;
+        }
+    </style>
+</head>
+<body class="min-h-screen text-slate-800 flex flex-col justify-between">
+
+    <!-- Confetti Overlay -->
+    <canvas id="confetti-canvas"></canvas>
+
+    <!-- Header Section -->
+    <header class="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 text-white shadow-lg relative overflow-hidden">
+        <div class="max-w-4xl mx-auto px-4 py-6 relative z-10">
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-right">
+                <div>
+                    <div class="inline-flex items-center gap-2 bg-yellow-400 text-slate-900 text-xs font-black px-3 py-1 rounded-full uppercase tracking-wider mb-2 shadow-sm">
+                        <span>TopGoal 3</span>
+                        <span>•</span>
+                        <span>الوحدة الأولى: Living Things</span>
+                    </div>
+                    <h1 class="text-2xl sm:text-3xl font-black tracking-tight flex items-center justify-center sm:justify-start gap-2">
+                        <span>اختبار وتعلّم الكلمات الأساسية</span>
+                        <span class="text-3xl">🌿</span>
+                    </h1>
+                </div>
+
+                <!-- Sound Control Toggle -->
+                <button id="sound-toggle-btn" onclick="toggleSound()" class="flex items-center gap-2 bg-white/20 hover:bg-white/30 px-4 py-2 rounded-2xl text-xs font-bold backdrop-blur-md border border-white/30 transition active:scale-95">
+                    <i id="sound-icon" class="fa-solid fa-volume-high text-yellow-300 text-base"></i>
+                    <span id="sound-text">الأصوات مفعّلة</span>
+                </button>
+            </div>
+
+            <!-- Navigation Tabs -->
+            <nav class="flex items-center justify-center sm:justify-start gap-2 mt-6 overflow-x-auto pb-1">
+                <button onclick="switchTab('quiz')" id="tab-quiz" class="tab-btn active bg-white text-indigo-700 font-black px-5 py-2.5 rounded-xl text-xs sm:text-sm shadow-md flex items-center gap-2 whitespace-nowrap transition-all">
+                    <i class="fa-solid fa-list-check"></i>
+                    <span>اختبار الاختيار من متعدد</span>
+                </button>
+
+                <button onclick="switchTab('flashcards')" id="tab-flashcards" class="tab-btn bg-white/20 text-white hover:bg-white/30 font-bold px-5 py-2.5 rounded-xl text-xs sm:text-sm flex items-center gap-2 whitespace-nowrap transition-all">
+                    <i class="fa-solid fa-clone"></i>
+                    <span>بطاقات الحفظ (Flashcards)</span>
+                </button>
+
+                <button onclick="switchTab('match')" id="tab-match" class="tab-btn bg-white/20 text-white hover:bg-white/30 font-bold px-5 py-2.5 rounded-xl text-xs sm:text-sm flex items-center gap-2 whitespace-nowrap transition-all">
+                    <i class="fa-solid fa-puzzle-piece"></i>
+                    <span>لعبة المطابقة</span>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-4xl mx-auto px-4 py-8 w-full flex-1">
+
+        <!-- ================= SECTION 1: MULTIPLE CHOICE QUIZ ================= -->
+        <section id="sec-quiz" class="tab-content block">
+            <div class="max-w-2xl mx-auto">
+                <!-- Quiz Progress Bar Header -->
+                <div class="glass-panel rounded-2xl p-4 mb-6 shadow-sm border-t-4 border-indigo-600 flex flex-col gap-2">
+                    <div class="flex items-center justify-between text-xs sm:text-sm font-bold">
+                        <span class="text-indigo-600 flex items-center gap-1.5">
+                            <i class="fa-solid fa-circle-question"></i>
+                            <span>السؤال <span id="quiz-current-num">1</span> من <span id="quiz-total-num">23</span></span>
+                        </span>
+                        <span class="text-emerald-600 flex items-center gap-1.5">
+                            <i class="fa-solid fa-star text-yellow-500"></i>
+                            <span>النقاط: <span id="quiz-score">0</span></span>
+                        </span>
+                    </div>
+                    <div class="w-full bg-slate-200 h-3 rounded-full overflow-hidden p-0.5 border border-slate-300">
+                        <div id="quiz-progress-bar" class="bg-gradient-to-r from-indigo-500 to-purple-600 h-full rounded-full transition-all duration-300" style="width: 0%;"></div>
+                    </div>
+                </div>
+
+                <!-- Question Card Container -->
+                <div class="glass-panel rounded-3xl p-6 sm:p-8 shadow-xl text-center relative overflow-hidden border border-slate-200">
+                    <div id="quiz-body">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= SECTION 2: FLASHCARDS ================= -->
+        <section id="sec-flashcards" class="tab-content hidden">
+            <div class="max-w-md mx-auto">
+                <!-- Card Counter & Controls -->
+                <div class="flex items-center justify-between mb-4 px-2">
+                    <span class="text-xs font-bold text-slate-500">
+                        بطاقة <span id="fc-current-idx">1</span> من <span id="fc-total-count">23</span>
+                    </span>
+                    <button onclick="shuffleFlashcards()" class="text-xs font-bold text-indigo-600 hover:text-indigo-800 bg-indigo-50 px-3 py-1.5 rounded-lg border border-indigo-100 flex items-center gap-1 transition">
+                        <i class="fa-solid fa-shuffle"></i>
+                        <span>خلط البطاقات</span>
+                    </button>
+                </div>
+
+                <!-- 3D Flip Card Element -->
+                <div id="fc-card" onclick="flipCurrentCard()" class="flip-card perspective-1000 h-72 cursor-pointer mb-6">
+                    <div class="flip-card-inner relative w-full h-full rounded-3xl shadow-xl border border-slate-200">
+                        
+                        <!-- Front Face (English Word + Icon + Audio) -->
+                        <div class="flip-card-front absolute inset-0 bg-white rounded-3xl p-6 flex flex-col items-center justify-between border-b-4 border-indigo-500">
+                            <div class="w-full flex justify-end">
+                                <span class="text-xs text-slate-400 font-bold bg-slate-100 px-3 py-1 rounded-full">اضغط للقلب 🔄</span>
+                            </div>
+
+                            <div class="text-center my-auto">
+                                <div id="fc-icon" class="text-6xl mb-3 animate-pulse-gentle">🦋</div>
+                                <h2 id="fc-english" class="text-3xl sm:text-4xl font-black text-indigo-950 tracking-wide">butterfly</h2>
+                            </div>
+
+                            <button onclick="event.stopPropagation(); speakText(vocabData[fcIndex].word)" class="px-4 py-2 bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white rounded-xl font-bold text-xs flex items-center gap-2 transition active:scale-95 shadow-sm">
+                                <i class="fa-solid fa-volume-high text-sm"></i>
+                                <span>نطق الكلمة</span>
+                            </button>
+                        </div>
+
+                        <!-- Back Face (Arabic Translation) -->
+                        <div class="flip-card-back absolute inset-0 bg-gradient-to-br from-indigo-600 to-purple-700 text-white rounded-3xl p-6 flex flex-col items-center justify-between shadow-inner">
+                            <div class="w-full flex justify-end">
+                                <span class="text-xs text-indigo-200 font-bold bg-white/10 px-3 py-1 rounded-full">المعنى بالعربية</span>
+                            </div>
+
+                            <div class="text-center my-auto">
+                                <div id="fc-icon-back" class="text-5xl mb-2">🦋</div>
+                                <h3 id="fc-arabic" class="text-3xl sm:text-4xl font-black text-yellow-300">فراشة</h3>
+                            </div>
+
+                            <div class="text-xs text-indigo-200 font-medium">اضغط للعودة للإنجليزية 🔄</div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Navigation Controls -->
+                <div class="flex items-center justify-between gap-4">
+                    <button onclick="prevFlashcard()" class="flex-1 py-3 bg-white hover:bg-slate-100 text-slate-700 font-bold rounded-2xl shadow-md border border-slate-200 text-sm flex items-center justify-center gap-2 transition active:scale-95">
+                        <i class="fa-solid fa-arrow-right"></i>
+                        <span>السابق</span>
+                    </button>
+                    
+                    <button onclick="speakText(vocabData[fcIndex].word)" class="w-12 h-12 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl shadow-md flex items-center justify-center text-lg transition active:scale-95" title="نطق الصوت">
+                        <i class="fa-solid fa-volume-high"></i>
+                    </button>
+
+                    <button onclick="nextFlashcard()" class="flex-1 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl shadow-md text-sm flex items-center justify-center gap-2 transition active:scale-95">
+                        <span>التالي</span>
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= SECTION 3: MATCHING GAME ================= -->
+        <section id="sec-match" class="tab-content hidden">
+            <div class="max-w-3xl mx-auto">
+                <!-- Info Bar -->
+                <div class="glass-panel rounded-2xl p-4 mb-6 shadow-sm flex items-center justify-between text-xs sm:text-sm font-bold border border-slate-200">
+                    <div class="flex items-center gap-2 text-indigo-600">
+                        <i class="fa-solid fa-stopwatch text-indigo-500"></i>
+                        <span>الوقت: <span id="match-timer">00:00</span></span>
+                    </div>
+                    <div class="flex items-center gap-2 text-amber-600">
+                        <i class="fa-solid fa-hand text-amber-500"></i>
+                        <span>المحاولات: <span id="match-moves">0</span></span>
+                    </div>
+                    <button onclick="initMatchingGame()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-sm text-xs transition flex items-center gap-1 active:scale-95">
+                        <i class="fa-solid fa-rotate"></i>
+                        <span>لعبة جديدة</span>
+                    </button>
+                </div>
+
+                <!-- Grid -->
+                <div id="match-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
+                    <!-- Dynamic Cards -->
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Quiz & Game Result Modal -->
+    <div id="quiz-result-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl text-center relative overflow-hidden">
+            <div class="w-20 h-20 bg-yellow-100 text-yellow-500 rounded-full flex items-center justify-center mx-auto mb-4 text-4xl shadow-inner">
+                <i id="result-icon" class="fa-solid fa-trophy"></i>
+            </div>
+            
+            <h2 id="result-title" class="text-2xl font-black text-slate-800 mb-1">أحسنت صنعاً! 🎉</h2>
+            <p id="result-subtitle" class="text-slate-500 text-xs font-bold mb-4">لقد أنهيت الاختيار بنجاح</p>
+
+            <!-- Stars Rating -->
+            <div id="result-stars" class="flex justify-center gap-2 text-3xl text-yellow-400 mb-6">
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+            </div>
+
+            <!-- Score Stats Box -->
+            <div class="bg-slate-50 rounded-2xl p-4 mb-6 border border-slate-200 flex justify-around">
+                <div>
+                    <div class="text-slate-400 text-xs font-bold mb-0.5">الإجابات الصحيحة</div>
+                    <div id="result-correct-count" class="text-emerald-600 font-black text-xl">0</div>
+                </div>
+                <div class="w-px bg-slate-200"></div>
+                <div>
+                    <div class="text-slate-400 text-xs font-bold mb-0.5">النسبة المئوية</div>
+                    <div id="result-percentage" class="text-indigo-600 font-black text-xl">0%</div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex gap-3">
+                <button onclick="closeResultModal(); switchTab('flashcards');" class="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs transition">
+                    مراجعة البطاقات 🗂️
+                </button>
+                <button onclick="closeResultModal(); startQuiz();" class="flex-1 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs shadow-md transition">
+                    إعادة الاختبار 🔄
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-center text-slate-400 text-xs font-medium py-4">
+        حقوق المنهج مخصصة لطلاب TopGoal 3 | مراجعة واختبار الكلمات الأساسية
+    </footer>
+
+    <!-- ================= JAVASCRIPT LOGIC ================= -->
+    <script>
+        /* ----------------------------------------------------
+           1. VOCABULARY DATASET (23 Words - TopGoal 3 Unit 1)
+        ---------------------------------------------------- */
+        const vocabData = [
+            { id: 1, word: "butterfly", arabic: "فراشة", icon: "🦋" },
+            { id: 2, word: "insects", arabic: "حشرات", icon: "🐛" },
+            { id: 3, word: "wing", arabic: "جناح", icon: "🪶" },
+            { id: 4, word: "heavy", arabic: "ثقيل", icon: "🐘" },
+            { id: 5, word: "beetle", arabic: "خنفساء", icon: "🪲" },
+            { id: 6, word: "touch", arabic: "لمس", icon: "👆" },
+            { id: 7, word: "dinosaurs", arabic: "ديناصورات", icon: "🦖" },
+            { id: 8, word: "look like", arabic: "يشبه / تشبه", icon: "🔍" },
+            { id: 9, word: "extinct", arabic: "منقرض", icon: "🦴" },
+            { id: 10, word: "tortoise", arabic: "سلحفاة", icon: "🐢" },
+            { id: 11, word: "furry", arabic: "فروي", icon: "🐅" },
+            { id: 12, word: "quiet", arabic: "هادئ / هدوء", icon: "🤫" },
+            { id: 13, word: "creatures", arabic: "مخلوقات", icon: "🐾" },
+            { id: 14, word: "look after", arabic: "يعتني بـ", icon: "🐕" },
+            { id: 15, word: "nest", arabic: "عش", icon: "🪹" },
+            { id: 16, word: "eagle", arabic: "نسر", icon: "🦅" },
+            { id: 17, word: "pond", arabic: "بركة", icon: "🏞️" },
+            { id: 18, word: "swan", arabic: "بجعة", icon: "🦢" },
+            { id: 19, word: "fur", arabic: "فرو", icon: "🐇" },
+            { id: 20, word: "octopus", arabic: "أخطبوط", icon: "🐙" },
+            { id: 21, word: "camel", arabic: "جمل", icon: "🐪" },
+            { id: 22, word: "desert", arabic: "صحراء", icon: "🏜️" },
+            { id: 23, word: "journey", arabic: "رحلة", icon: "🕋" }
+        ];
+
+        /* ----------------------------------------------------
+           2. AUDIO & SPEECH SYNTHESIS
+        ---------------------------------------------------- */
+        let soundEnabled = true;
+        let audioCtx = null;
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            const icon = document.getElementById('sound-icon');
+            const text = document.getElementById('sound-text');
+            if (soundEnabled) {
+                icon.className = 'fa-solid fa-volume-high text-yellow-300 text-base';
+                text.innerText = 'الأصوات مفعّلة';
+            } else {
+                icon.className = 'fa-solid fa-volume-xmark text-slate-400 text-base';
+                text.innerText = 'الأصوات مكتومة';
+            }
+        }
+
+        function playAudioTone(freq, type, duration) {
+            if (!soundEnabled) return;
+            try {
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = type || 'sine';
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch (e) {
+                console.log(e);
+            }
+        }
+
+        function playFX(type) {
+            if (!soundEnabled) return;
+            if (type === 'correct') {
+                playAudioTone(523.25, 'triangle', 0.12);
+                setTimeout(() => playAudioTone(659.25, 'triangle', 0.12), 100);
+                setTimeout(() => playAudioTone(783.99, 'triangle', 0.2), 200);
+            } else if (type === 'wrong') {
+                playAudioTone(220, 'sawtooth', 0.15);
+                setTimeout(() => playAudioTone(180, 'sawtooth', 0.25), 120);
+            } else if (type === 'click') {
+                playAudioTone(440, 'sine', 0.05);
+            } else if (type === 'win') {
+                [523.25, 659.25, 783.99, 1046.50].forEach((f, i) => {
+                    setTimeout(() => playAudioTone(f, 'triangle', 0.18), i * 110);
+                });
+            }
+        }
+
+        function speakText(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const msg = new SpeechSynthesisUtterance(text);
+                msg.lang = 'en-US';
+                msg.rate = 0.85; // Natural clear pace for kids
+                msg.pitch = 1.0;
+                window.speechSynthesis.speak(msg);
+            }
+        }
+
+        /* ----------------------------------------------------
+           3. NAVIGATION TABS
+        ---------------------------------------------------- */
+        function switchTab(tabKey) {
+            playFX('click');
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.className = 'tab-btn bg-white/20 text-white hover:bg-white/30 font-bold px-5 py-2.5 rounded-xl text-xs sm:text-sm flex items-center gap-2 whitespace-nowrap transition-all';
+            });
+
+            const activeBtn = document.getElementById(`tab-${tabKey}`);
+            if (activeBtn) {
+                activeBtn.className = 'tab-btn active bg-white text-indigo-700 font-black px-5 py-2.5 rounded-xl text-xs sm:text-sm shadow-md flex items-center gap-2 whitespace-nowrap transition-all';
+            }
+
+            const targetSec = document.getElementById(`sec-${tabKey}`);
+            if (targetSec) targetSec.classList.remove('hidden');
+
+            if (tabKey === 'quiz') startQuiz();
+            if (tabKey === 'flashcards') renderFlashcard();
+            if (tabKey === 'match') initMatchingGame();
+        }
+
+        /* ----------------------------------------------------
+           4. MULTIPLE CHOICE QUIZ LOGIC
+        ---------------------------------------------------- */
+        let quizIndex = 0;
+        let quizScore = 0;
+        let quizQuestions = [];
+
+        function startQuiz() {
+            quizQuestions = [...vocabData].sort(() => Math.random() - 0.5);
+            quizIndex = 0;
+            quizScore = 0;
+            document.getElementById('quiz-score').innerText = '0';
+            document.getElementById('quiz-total-num').innerText = quizQuestions.length;
+            renderQuizQuestion();
+        }
+
+        function renderQuizQuestion() {
+            if (quizIndex >= quizQuestions.length) {
+                showQuizResult();
+                return;
+            }
+
+            const q = quizQuestions[quizIndex];
+            document.getElementById('quiz-current-num').innerText = quizIndex + 1;
+            
+            const pct = (quizIndex / quizQuestions.length) * 100;
+            document.getElementById('quiz-progress-bar').style.width = `${pct}%`;
+
+            // Auto-pronounce word upon question arrival
+            speakText(q.word);
+
+            // Create 4 choices (1 correct, 3 distractors)
+            const distractors = vocabData.filter(v => v.id !== q.id).sort(() => Math.random() - 0.5).slice(0, 3);
+            const choices = [q, ...distractors].sort(() => Math.random() - 0.5);
+
+            const quizBody = document.getElementById('quiz-body');
+            quizBody.innerHTML = `
+                <div class="text-6xl mb-3 animate-pulse-gentle">${q.icon}</div>
+
+                <!-- Word Display & Pronounce Button -->
+                <div onclick="speakText('${q.word}')" class="inline-flex items-center gap-3 bg-indigo-50 border border-indigo-100 hover:bg-indigo-100/70 px-6 py-3 rounded-2xl mb-6 cursor-pointer transition active:scale-95 group">
+                    <h2 class="text-3xl sm:text-4xl font-black text-indigo-950 tracking-wide">${q.word}</h2>
+                    <span class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-sm group-hover:scale-110 transition">
+                        <i class="fa-solid fa-volume-high text-base"></i>
+                    </span>
+                </div>
+
+                <p class="text-xs sm:text-sm text-slate-500 font-bold mb-6">اختر المعنى العربي الصحيح للكلمة أعلاه:</p>
+
+                <!-- Options Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="quiz-options-container">
+                    ${choices.map((opt, idx) => `
+                        <button onclick="handleQuizAnswer(this, ${opt.id === q.id}, '${q.arabic}')" class="quiz-opt-btn w-full p-4 rounded-2xl border-2 border-slate-200 bg-white hover:border-indigo-400 hover:bg-indigo-50 text-slate-800 font-black text-base sm:text-lg transition flex items-center justify-between shadow-sm">
+                            <span>${opt.arabic}</span>
+                            <span class="w-7 h-7 rounded-full bg-slate-100 text-slate-400 font-bold text-xs flex items-center justify-center border border-slate-200">${['أ', 'ب', 'ج', 'د'][idx]}</span>
+                        </button>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function handleQuizAnswer(btnEl, isCorrect, correctArabicText) {
+            const allBtns = document.querySelectorAll('.quiz-opt-btn');
+            allBtns.forEach(b => b.onclick = null); // Prevent multiple clicks
+
+            if (isCorrect) {
+                btnEl.classList.remove('border-slate-200', 'bg-white');
+                btnEl.classList.add('border-emerald-500', 'bg-emerald-50', 'text-emerald-900');
+                btnEl.querySelector('span:last-child').innerHTML = '<i class="fa-solid fa-check text-emerald-600 text-sm"></i>';
+                playFX('correct');
+                quizScore += 10;
+                document.getElementById('quiz-score').innerText = quizScore;
+            } else {
+                btnEl.classList.remove('border-slate-200', 'bg-white');
+                btnEl.classList.add('border-rose-500', 'bg-rose-50', 'text-rose-900');
+                btnEl.querySelector('span:last-child').innerHTML = '<i class="fa-solid fa-xmark text-rose-600 text-sm"></i>';
+                playFX('wrong');
+
+                // Highlight correct button
+                allBtns.forEach(b => {
+                    if (b.innerText.includes(correctArabicText)) {
+                        b.classList.remove('border-slate-200', 'bg-white');
+                        b.classList.add('border-emerald-500', 'bg-emerald-50', 'text-emerald-900');
+                    }
+                });
+            }
+
+            // Move to next question after 1.2s
+            setTimeout(() => {
+                quizIndex++;
+                renderQuizQuestion();
+            }, 1200);
+        }
+
+        function showQuizResult() {
+            const modal = document.getElementById('quiz-result-modal');
+            const total = quizQuestions.length;
+            const correctCount = quizScore / 10;
+            const pct = Math.round((correctCount / total) * 100);
+
+            document.getElementById('result-correct-count').innerText = `${correctCount} / ${total}`;
+            document.getElementById('result-percentage').innerText = `${pct}%`;
+
+            const starsContainer = document.getElementById('result-stars');
+            if (pct >= 85) {
+                starsContainer.innerHTML = '<i class="fa-solid fa-star text-yellow-400"></i><i class="fa-solid fa-star text-yellow-400"></i><i class="fa-solid fa-star text-yellow-400"></i>';
+                document.getElementById('result-title').innerText = 'ممتاز جداً! أداء متميز 🌟';
+                playFX('win');
+                triggerConfetti();
+            } else if (pct >= 60) {
+                starsContainer.innerHTML = '<i class="fa-solid fa-star text-yellow-400"></i><i class="fa-solid fa-star text-yellow-400"></i><i class="fa-regular fa-star text-slate-300"></i>';
+                document.getElementById('result-title').innerText = 'عمل جيد جداً! 👍';
+                playFX('correct');
+            } else {
+                starsContainer.innerHTML = '<i class="fa-solid fa-star text-yellow-400"></i><i class="fa-regular fa-star text-slate-300"></i><i class="fa-regular fa-star text-slate-300"></i>';
+                document.getElementById('result-title').innerText = 'حاول مجدداً لتثبيت الكلمات 💪';
+                playFX('wrong');
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeResultModal() {
+            document.getElementById('quiz-result-modal').classList.add('hidden');
+        }
+
+        /* ----------------------------------------------------
+           5. FLASHCARDS LOGIC
+        ---------------------------------------------------- */
+        let fcIndex = 0;
+
+        function renderFlashcard() {
+            const cardEl = document.getElementById('fc-card');
+            cardEl.classList.remove('flipped');
+
+            const item = vocabData[fcIndex];
+            document.getElementById('fc-current-idx').innerText = fcIndex + 1;
+            document.getElementById('fc-total-count').innerText = vocabData.length;
+
+            document.getElementById('fc-icon').innerText = item.icon;
+            document.getElementById('fc-icon-back').innerText = item.icon;
+            document.getElementById('fc-english').innerText = item.word;
+            document.getElementById('fc-arabic').innerText = item.arabic;
+
+            // Pronounce English word automatically
+            speakText(item.word);
+        }
+
+        function flipCurrentCard() {
+            playFX('click');
+            const cardEl = document.getElementById('fc-card');
+            cardEl.classList.toggle('flipped');
+        }
+
+        function nextFlashcard() {
+            playFX('click');
+            fcIndex = (fcIndex + 1) % vocabData.length;
+            renderFlashcard();
+        }
+
+        function prevFlashcard() {
+            playFX('click');
+            fcIndex = (fcIndex - 1 + vocabData.length) % vocabData.length;
+            renderFlashcard();
+        }
+
+        function shuffleFlashcards() {
+            playFX('click');
+            vocabData.sort(() => Math.random() - 0.5);
+            fcIndex = 0;
+            renderFlashcard();
+        }
+
+        /* ----------------------------------------------------
+           6. MATCHING GAME LOGIC
+        ---------------------------------------------------- */
+        let matchCards = [];
+        let flippedCards = [];
+        let matchedPairs = 0;
+        let matchMoves = 0;
+        let matchSeconds = 0;
+        let matchTimerInterval = null;
+
+        function initMatchingGame() {
+            // Pick 6 random items for game session
+            const selected = [...vocabData].sort(() => Math.random() - 0.5).slice(0, 6);
+            
+            matchCards = [];
+            selected.forEach(item => {
+                matchCards.push({ id: item.id, text: item.word, type: 'en', icon: item.icon });
+                matchCards.push({ id: item.id, text: item.arabic, type: 'ar', icon: item.icon });
+            });
+
+            matchCards.sort(() => Math.random() - 0.5);
+
+            flippedCards = [];
+            matchedPairs = 0;
+            matchMoves = 0;
+            matchSeconds = 0;
+
+            document.getElementById('match-moves').innerText = '0';
+            document.getElementById('match-timer').innerText = '00:00';
+
+            clearInterval(matchTimerInterval);
+            matchTimerInterval = setInterval(() => {
+                matchSeconds++;
+                const mins = String(Math.floor(matchSeconds / 60)).padStart(2, '0');
+                const secs = String(matchSeconds % 60).padStart(2, '0');
+                document.getElementById('match-timer').innerText = `${mins}:${secs}`;
+            }, 1000);
+
+            renderMatchGrid();
+        }
+
+        function renderMatchGrid() {
+            const grid = document.getElementById('match-grid');
+            grid.innerHTML = '';
+
+            matchCards.forEach((card, idx) => {
+                const cardEl = document.createElement('div');
+                cardEl.className = 'match-card h-28 cursor-pointer perspective-1000';
+                cardEl.innerHTML = `
+                    <div class="flip-card-inner relative w-full h-full rounded-2xl shadow-sm border border-slate-200">
+                        <div class="flip-card-front absolute inset-0 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center text-white text-2xl font-bold">
+                            <i class="fa-solid fa-puzzle-piece opacity-60"></i>
+                        </div>
+                        <div class="flip-card-back absolute inset-0 bg-white rounded-2xl p-3 flex flex-col items-center justify-center text-center border-2 border-indigo-500">
+                            <span class="text-xl mb-1">${card.icon}</span>
+                            <span class="font-black text-slate-800 text-sm sm:text-base">${card.text}</span>
+                        </div>
+                    </div>
+                `;
+                cardEl.onclick = () => flipMatchCard(cardEl, idx);
+                grid.appendChild(cardEl);
+            });
+        }
+
+        function flipMatchCard(cardEl, index) {
+            if (flippedCards.length >= 2) return;
+            if (cardEl.classList.contains('flipped') || cardEl.classList.contains('matched')) return;
+
+            playFX('click');
+            cardEl.classList.add('flipped');
+            flippedCards.push({ element: cardEl, index: index, data: matchCards[index] });
+
+            if (flippedCards.length === 2) {
+                matchMoves++;
+                document.getElementById('match-moves').innerText = matchMoves;
+                checkMatchPair();
+            }
+        }
+
+        function checkMatchPair() {
+            const [c1, c2] = flippedCards;
+
+            if (c1.data.id === c2.data.id && c1.data.type !== c2.data.type) {
+                playFX('correct');
+                if (c1.data.type === 'en') speakText(c1.data.text);
+                if (c2.data.type === 'en') speakText(c2.data.text);
+
+                c1.element.classList.add('matched');
+                c2.element.classList.add('matched');
+
+                c1.element.querySelector('.flip-card-back').classList.replace('border-indigo-500', 'border-emerald-500');
+                c1.element.querySelector('.flip-card-back').classList.add('bg-emerald-50');
+                c2.element.querySelector('.flip-card-back').classList.replace('border-indigo-500', 'border-emerald-500');
+                c2.element.querySelector('.flip-card-back').classList.add('bg-emerald-50');
+
+                flippedCards = [];
+                matchedPairs++;
+
+                if (matchedPairs === 6) {
+                    clearInterval(matchTimerInterval);
+                    setTimeout(() => {
+                        playFX('win');
+                        triggerConfetti();
+                        showQuizResult();
+                    }, 500);
+                }
+            } else {
+                playFX('wrong');
+                setTimeout(() => {
+                    c1.element.classList.remove('flipped');
+                    c2.element.classList.remove('flipped');
+                    flippedCards = [];
+                }, 1000);
+            }
+        }
+
+        /* ----------------------------------------------------
+           7. CONFETTI EFFECT
+        ---------------------------------------------------- */
+        function triggerConfetti() {
+            const canvas = document.getElementById('confetti-canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const pieces = [];
+            const colors = ['#f59e0b', '#10b981', '#6366f1', '#ec4899', '#3b82f6'];
+
+            for (let i = 0; i < 100; i++) {
+                pieces.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height - canvas.height,
+                    size: Math.random() * 8 + 4,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    speedY: Math.random() * 3 + 2,
+                    speedX: Math.random() * 2 - 1,
+                    rotation: Math.random() * 360,
+                    rotSpeed: Math.random() * 10 - 5
+                });
+            }
+
+            let animId;
+            function update() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                let alive = false;
+                pieces.forEach(p => {
+                    p.y += p.speedY;
+                    p.x += p.speedX;
+                    p.rotation += p.rotSpeed;
+
+                    if (p.y < canvas.height) alive = true;
+
+                    ctx.save();
+                    ctx.translate(p.x, p.y);
+                    ctx.rotate((p.rotation * Math.PI) / 180);
+                    ctx.fillStyle = p.color;
+                    ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+                    ctx.restore();
+                });
+
+                if (alive) {
+                    animId = requestAnimationFrame(update);
+                } else {
+                    cancelAnimationFrame(animId);
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                }
+            }
+            update();
+        }
+
+        /* ----------------------------------------------------
+           8. INIT ON WINDOW LOAD
+        ---------------------------------------------------- */
+        window.onload = function() {
+            startQuiz();
+        };
+    </script>
+</body>
+</html>
